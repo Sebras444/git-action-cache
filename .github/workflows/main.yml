@@ -1,4 +1,4 @@
-name: CI cache
+name: CI cache advance
 
 on: workflow_dispatch
 
@@ -13,9 +13,18 @@ jobs:
       - uses: actions/setup-node@v3.6.0
         with:
           node-version: v16.14.2
-          cache: 'yarn'
-          # Useful for caching dependencies in monorepos:
-          cache-dependency-path: yarn.lock
+
+      - name: Get node version
+        id: node
+        run: |
+          echo "version=$(node -v)" >> $GITHUB_OUTPUT
+      - name: Get node_modules cache
+        uses: actions/cache@v3.3.1
+        id: node_modules
+        with:
+          path: |
+            **/node_modules
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}-${{ steps.node.outputs.version }}
 
       - run: yarn install
 
